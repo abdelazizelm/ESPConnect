@@ -261,9 +261,13 @@
                 <div class="partition-map">
                   <div
                     v-for="segment in partitionSegments"
-                    :key="segment.offset"
-                    class="partition-segment"
-                    :style="{ width: segment.width, backgroundColor: segment.color }"
+                    :key="segment.key"
+                    :class="['partition-segment', { 'partition-segment--unused': segment.isUnused }]"
+                    :style="{
+                      width: segment.width,
+                      backgroundColor: segment.color,
+                      backgroundImage: segment.backgroundImage
+                    }"
                   >
                     <span class="partition-label">{{ segment.label || 'Unnamed' }}</span>
                     <span class="partition-meta">
@@ -677,6 +681,7 @@ const firmwareName = ref('');
 const chipDetails = ref(null);
 const partitionTable = ref([]);
 const activeTab = ref('info');
+const flashSizeBytes = ref(null);
 
 const showBootDialog = ref(false);
 const lastErrorMessage = ref('');
@@ -753,26 +758,113 @@ const partitionPalette = [
   '#ffc6ff',
 ];
 
+const UNUSED_SEGMENT_COLOR = '#374151';
+const UNUSED_SEGMENT_PATTERN =
+  'repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0, rgba(255, 255, 255, 0.28) 8px, rgba(255, 255, 255, 0.08) 8px, rgba(255, 255, 255, 0.08) 16px)';
+
 const partitionSegments = computed(() => {
-  if (!partitionTable.value.length) return [];
-  const total = partitionTable.value.reduce((sum, entry) => sum + entry.size, 0) || 1;
-  return partitionTable.value.map((entry, index) => {
-    const widthPercent = Math.max(2, (entry.size / total) * 100);
+  const sortedPartitions = [...partitionTable.value].sort((a, b) => a.offset - b.offset);
+  const totalFlash = flashSizeBytes.value && flashSizeBytes.value > 0 ? flashSizeBytes.value : null;
+  const segments = [];
+  let cursor = 0;
+
+  for (const entry of sortedPartitions) {
+    const start = entry.offset;
+    if (start > cursor) {
+      const gapSize = start - cursor;
+      segments.push({
+        key: `gap-${cursor}`,
+        kind: 'gap',
+        offset: cursor,
+        size: gapSize,
+      });
+    }
+
+    segments.push({
+      key: `partition-${entry.offset}-${entry.type}-${entry.subtype}-${entry.size}`,
+      kind: 'partition',
+      offset: entry.offset,
+      size: entry.size,
+      entry,
+    });
+
+    const end = entry.offset + entry.size;
+    if (end > cursor) {
+      cursor = end;
+    }
+  }
+
+  const totalSpanCandidate = totalFlash ?? cursor;
+  if (totalSpanCandidate > cursor) {
+    segments.push({
+      key: `gap-${cursor}`,
+      kind: 'gap',
+      offset: cursor,
+      size: totalSpanCandidate - cursor,
+    });
+  }
+
+  if (!segments.length && totalFlash) {
+    segments.push({
+      key: 'gap-0',
+      kind: 'gap',
+      offset: 0,
+      size: totalFlash,
+    });
+  }
+
+  const sizedSegments = segments.filter(segment => segment.size > 0);
+  if (!sizedSegments.length) {
+    return [];
+  }
+
+  const totalSpan = sizedSegments.reduce((sum, segment) => sum + segment.size, 0) || 1;
+  let partitionIndex = 0;
+
+  return sizedSegments.map(segment => {
+    const widthPercent = Math.max(2, (segment.size / totalSpan) * 100);
+
+    if (segment.kind === 'gap') {
+      const offsetHex = `0x${segment.offset.toString(16).toUpperCase()}`;
+      const sizeText = formatBytes(segment.size) ?? `${segment.size} bytes`;
+      return {
+        key: segment.key,
+        label: 'Unused',
+        width: `${widthPercent}%`,
+        color: UNUSED_SEGMENT_COLOR,
+        backgroundImage: UNUSED_SEGMENT_PATTERN,
+        sizeText,
+        offsetHex,
+        typeHex: '—',
+        subtypeHex: '—',
+        isUnused: true,
+      };
+    }
+
+    const entry = segment.entry;
     const normalizedLabel = (entry.label || '')
       .trim()
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '_')
       .replace(/^_+|_+$/g, '');
     const colorOverride = normalizedLabel ? partitionColorOverrides[normalizedLabel] : undefined;
-    const color = colorOverride || partitionTypeColors[entry.type] || partitionPalette[index % partitionPalette.length];
+    const color =
+      colorOverride ||
+      partitionTypeColors[entry.type] ||
+      partitionPalette[partitionIndex % partitionPalette.length];
+    partitionIndex += 1;
+
     return {
-      ...entry,
+      key: segment.key,
+      label: entry.label || `type 0x${entry.type.toString(16)}`,
       width: `${widthPercent}%`,
       color,
+      backgroundImage: null,
       sizeText: formatBytes(entry.size) ?? `${entry.size} bytes`,
       offsetHex: `0x${entry.offset.toString(16).toUpperCase()}`,
       typeHex: `0x${entry.type.toString(16).toUpperCase()}`,
       subtypeHex: `0x${entry.subtype.toString(16).toUpperCase()}`,
+      isUnused: false,
     };
   });
 });
@@ -832,6 +924,7 @@ async function disconnectTransport() {
     connected.value = false;
     statusDetails.value = 'No device connected.';
     chipDetails.value = null;
+    flashSizeBytes.value = null;
   }
 }
 
@@ -902,6 +995,8 @@ async function connect() {
       : typeof featuresRaw === 'string'
       ? featuresRaw.split(/,\s*/)
       : [];
+    const flashBytesValue = typeof flashSizeKb === 'number' ? flashSizeKb * 1024 : null;
+    flashSizeBytes.value = flashBytesValue;
     const flashLabel =
       typeof flashSizeKb === 'number'
         ? flashSizeKb >= 1024
@@ -1281,6 +1376,14 @@ onBeforeUnmount(() => {
 
 .partition-segment:first-child {
   border-left: none;
+}
+
+.partition-segment--unused {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.partition-segment--unused .partition-meta {
+  opacity: 0.8;
 }
 
 .partition-label {
