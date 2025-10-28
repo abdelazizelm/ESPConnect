@@ -88,8 +88,8 @@
 
           <v-tabs v-model="activeTab" class="mb-4" color="primary" grow>
             <v-tab value="info">Device Info</v-tab>
-            <v-tab value="flash">Flash Firmware</v-tab>
             <v-tab value="partitions">Partitions</v-tab>
+            <v-tab value="flash">Flash Firmware</v-tab>
           </v-tabs>
 
           <v-window v-model="activeTab">
@@ -98,6 +98,13 @@
                 :chip-details="chipDetails"
                 :log-text="logText"
                 @clear-log="clearLog"
+              />
+            </v-window-item>
+
+            <v-window-item value="partitions">
+              <PartitionsTab
+                :partition-segments="partitionSegments"
+                :formatted-partitions="formattedPartitions"
               />
             </v-window-item>
 
@@ -114,13 +121,6 @@
                 @firmware-input="handleFirmwareInput"
                 @flash="flashFirmware"
                 @apply-preset="applyOffsetPreset"
-              />
-            </v-window-item>
-
-            <v-window-item value="partitions">
-              <PartitionsTab
-                :partition-segments="partitionSegments"
-                :formatted-partitions="formattedPartitions"
               />
             </v-window-item>
           </v-window>
