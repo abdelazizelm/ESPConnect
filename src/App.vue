@@ -8,6 +8,17 @@
       width="260"
       elevation="1"
     >
+      <v-sheet class="app-drawer__header" color="surface-variant" rounded="lg">
+        <div class="app-drawer__title text-h6 font-weight-semibold">
+          {{ APP_NAME }}
+        </div>
+        <div class="app-drawer__version text-body-2 text-medium-emphasis">
+          v{{ APP_VERSION }}
+        </div>
+        <div class="app-drawer__tagline text-body-2 text-medium-emphasis">
+          {{ APP_TAGLINE }}
+        </div>
+      </v-sheet>
       <v-list nav density="comfortable" class="app-drawer__list">
         <v-list-subheader class="app-drawer__label text-overline text-medium-emphasis">
           Sections
@@ -47,15 +58,6 @@
     <v-main>
       <v-container class="py-10" max-width="1100">
         <v-card elevation="8" class="pa-6">
-          <v-card-title class="d-flex align-center pa-0 mb-1">
-            <div class="app-title text-h5 font-weight-semibold">
-              ESPConnect
-              <span class="app-version">v{{ APP_VERSION }}</span>
-            </div>
-          </v-card-title>
-          <v-card-subtitle class="pa-0 text-body-2 text-medium-emphasis mb-3">
-            {{ APP_TAGLINE }}
-          </v-card-subtitle>
 
           <v-system-bar class="status-bar mb-4" color="primary" :height="64" dark window>
             <div class="status-actions">
@@ -888,6 +890,7 @@ const firmwareName = ref('');
 const chipDetails = ref(null);
 const partitionTable = ref([]);
 const activeTab = ref('info');
+const APP_NAME = 'ESPConnect';
 const navigationItems = [
   { title: 'Device Info', value: 'info', icon: 'mdi-information-outline' },
   { title: 'Partitions', value: 'partitions', icon: 'mdi-table' },
@@ -3561,7 +3564,13 @@ onBeforeUnmount(() => {
   padding-inline: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+}
+
+.app-drawer__header {
+  padding: 20px;
+  border: 1px solid color-mix(in srgb, var(--v-theme-primary) 10%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #ffffff 40%, transparent);
 }
 
 .app-drawer__divider {
@@ -3580,10 +3589,6 @@ onBeforeUnmount(() => {
 .app-drawer :deep(.v-list-item--active) {
   background-color: color-mix(in srgb, var(--v-theme-primary) 16%, transparent);
   color: var(--v-theme-primary);
-}
-
-.app-tab-content {
-  min-height: 360px;
 }
 
 </style>
