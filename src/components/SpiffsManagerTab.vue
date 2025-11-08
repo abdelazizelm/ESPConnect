@@ -161,26 +161,6 @@
             </div>
           </div>
         </div>
-        <v-alert
-          v-if="uploadBlocked && uploadBlockedReason"
-          type="error"
-          variant="tonal"
-          density="comfortable"
-          border="start"
-          class="mt-3"
-        >
-          {{ uploadBlockedReason }}
-        </v-alert>
-        <v-alert
-          v-if="uploadBlocked && uploadBlockedReason"
-          type="error"
-          variant="tonal"
-          density="comfortable"
-          border="start"
-          class="mt-3"
-        >
-          {{ uploadBlockedReason }}
-        </v-alert>
 
         <v-alert
           v-if="!files.length"
