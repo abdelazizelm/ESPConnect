@@ -169,13 +169,30 @@
         >
           No files detected. Upload or restore a SPIFFS image to begin.
         </v-alert>
-        <v-data-table
-          v-else
+        <template v-else>
+          <div class="spiffs-table__toolbar mt-4">
+            <v-text-field
+              v-model="fileSearch"
+              label="Filter files"
+              variant="outlined"
+              density="comfortable"
+              clearable
+              hide-details
+              prepend-inner-icon="mdi-magnify"
+              class="spiffs-table__filter"
+            />
+            <v-chip size="small" variant="tonal" color="primary">
+              {{ filteredCountLabel }}
+            </v-chip>
+          </div>
+          <v-data-table
           :headers="fileTableHeaders"
           :items="files"
           item-key="name"
-          :items-per-page="-1"
-          hide-default-footer
+          v-model:items-per-page="filesPerPage"
+          v-model:page="filesPage"
+          :search="fileSearch"
+          :items-per-page-options="filesPerPageOptions"
           density="comfortable"
           class="spiffs-table mt-4"
         >
@@ -219,6 +236,7 @@
             </v-btn>
           </template>
         </v-data-table>
+        </template>
       </v-card-text>
     </v-card>
 
@@ -300,6 +318,7 @@ const fileTableHeaders = Object.freeze([
   { title: 'Size', key: 'size', sortable: true, align: 'start' },
   { title: 'Actions', key: 'actions', sortable: false, align: 'start' },
 ]);
+const filesPerPageOptions = Object.freeze([10, 25, 50, { value: -1, title: 'All' }]);
 
 const emit = defineEmits([
   'select-partition',
@@ -317,6 +336,9 @@ const emit = defineEmits([
 
 const uploadFile = ref(null);
 const restoreInput = ref(null);
+const fileSearch = ref('');
+const filesPerPage = ref(10);
+const filesPage = ref(1);
 const usagePercent = computed(() => {
   if (!props.usage || !props.usage.capacityBytes) {
     return 0;
@@ -329,6 +351,25 @@ const usagePercent = computed(() => {
 });
 const dragActive = ref(false);
 const autoUploadPending = ref(false);
+const filteredFiles = computed(() => {
+  const query = fileSearch.value.trim().toLowerCase();
+  if (!query) {
+    return props.files;
+  }
+  return props.files.filter(file => file?.name?.toLowerCase().includes(query));
+});
+const filteredCountLabel = computed(() => {
+  const total = props.files.length;
+  const filtered = filteredFiles.value.length;
+  const pluralize = count => (count === 1 ? 'file' : 'files');
+  if (!total) {
+    return 'No files';
+  }
+  if (filtered === total) {
+    return `${total} ${pluralize(total)}`;
+  }
+  return `${filtered} of ${total} files`;
+});
 const canUpload = computed(
   () =>
     !props.readOnly &&
@@ -360,6 +401,10 @@ watch(
     }
   },
 );
+
+watch([fileSearch, () => props.files.length], () => {
+  filesPage.value = 1;
+});
 
 function submitUpload(auto = false) {
   if (!uploadFile.value || props.uploadBlocked) return;
@@ -539,6 +584,17 @@ function previewLabel(name) {
 
 .spiffs-table code {
   font-size: 0.85rem;
+}
+
+.spiffs-table__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.spiffs-table__filter {
+  flex: 1;
+  max-width: 360px;
 }
 
 .spiffs-dropzone {
