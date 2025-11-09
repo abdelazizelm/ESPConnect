@@ -118,7 +118,7 @@
           </div>
           <v-data-table :headers="fileTableHeaders" :items="filteredFiles" item-key="name"
             v-model:items-per-page="filesPerPage" v-model:page="filesPage" :items-per-page-options="filesPerPageOptions"
-            density="comfortable" class="filesystem-table mt-4">
+            density="compact" class="filesystem-table mt-4">
             <template #item.name="{ item }">
               <code>{{ unwrapItem(item).name }}</code>
             </template>
