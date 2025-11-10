@@ -2,7 +2,7 @@
   <v-app>
     <v-navigation-drawer permanent app elevation="1">
       <v-list>
-        <v-list-item prepend-icon="mdi-transit-connection-variant" title="ESPConnect" :subtitle="'v' + APP_VERSION">
+        <v-list-item prepend-icon="mdi-usb" title="ESPConnect" :subtitle="'v' + APP_VERSION">
         </v-list-item>
       </v-list>
       <v-list nav density="comfortable">
