@@ -3434,6 +3434,7 @@ const monitorActive = ref(false);
 const monitorError = ref(null);
 const monitorAbortController = ref(null);
 const serialMonitorClosedPrompt = ref(false);
+const maintenanceNavigationLocked = computed(() => monitorActive.value);
 const MONITOR_BUFFER_LIMIT = 20000;
 let monitorPendingText = '';
 let monitorFlushHandle = null;
@@ -3464,27 +3465,35 @@ const navigationItems = computed(() => [
     title: 'Apps',
     value: 'apps',
     icon: 'mdi-application',
-    disabled: !connected.value,
+    disabled: !connected.value || maintenanceNavigationLocked.value,
   },
   {
     title: 'SPIFFS Tools',
     value: 'spiffs',
     icon: 'mdi-folder-wrench',
-    disabled: !connected.value || !spiffsAvailable.value,
+    disabled:
+      !connected.value || !spiffsAvailable.value || maintenanceNavigationLocked.value,
   },
   {
     title: 'LittleFS Tools',
     value: 'littlefs',
     icon: 'mdi-alpha-l-circle-outline',
-    disabled: !connected.value || !littleFsAvailable.value,
+    disabled:
+      !connected.value || !littleFsAvailable.value || maintenanceNavigationLocked.value,
   },
   {
     title: 'FATFS Tools',
     value: 'fatfs',
     icon: 'mdi-alpha-f-circle-outline',
-    disabled: !connected.value || !fatfsAvailable.value,
+    disabled:
+      !connected.value || !fatfsAvailable.value || maintenanceNavigationLocked.value,
   },
-  { title: 'Flash Tools', value: 'flash', icon: 'mdi-chip', disabled: !connected.value },
+  {
+    title: 'Flash Tools',
+    value: 'flash',
+    icon: 'mdi-chip',
+    disabled: !connected.value || maintenanceNavigationLocked.value,
+  },
   { title: 'Serial Monitor', value: 'console', icon: 'mdi-console-line', disabled: false },
   { title: 'Session Log', value: 'log', icon: 'mdi-clipboard-text-outline', disabled: false },
   {
