@@ -66,7 +66,8 @@
           <v-alert v-if="!serialSupported" type="error" class="mb-4" variant="tonal" icon="mdi-alert-circle-outline">
             This browser does not support the Web Serial API. Use Chrome, Edge, or another Chromium-based browser.
           </v-alert>
-          <v-alert v-else-if="showSerialMonitorReconnectNotice" type="info" class="mb-4" variant="tonal" icon="mdi-console-line">
+          <v-alert v-else-if="showSerialMonitorReconnectNotice" type="info" class="mb-4" variant="tonal"
+            icon="mdi-console-line">
             Serial monitor closed — click Connect to re-enter maintenance mode.
           </v-alert>
           <v-window v-model="activeTab" class="app-tab-content">
@@ -81,15 +82,14 @@
 
             <v-window-item value="spiffs">
               <FilesystemManagerTab v-if="connected" :partitions="spiffsPartitions"
-                :selected-partition-id="spiffsState.selectedId" :files="spiffsState.files"
-                :status="spiffsState.status" :loading="spiffsState.loading" :busy="spiffsState.busy"
-                :saving="spiffsState.saving" :read-only="spiffsState.readOnly"
-                :read-only-reason="spiffsState.readOnlyReason" :dirty="spiffsState.dirty"
-                :backup-done="spiffsState.backupDone || spiffsState.sessionBackupDone" :error="spiffsState.error"
-                :has-partition="hasSpiffsPartitionSelected" :has-client="Boolean(spiffsState.client)"
-                :usage="spiffsState.usage" :upload-blocked="spiffsState.uploadBlocked"
-                :upload-blocked-reason="spiffsState.uploadBlockedReason" :is-file-viewable="isViewableSpiffsFile"
-                :load-cancelled="spiffsState.loadCancelled"
+                :selected-partition-id="spiffsState.selectedId" :files="spiffsState.files" :status="spiffsState.status"
+                :loading="spiffsState.loading" :busy="spiffsState.busy" :saving="spiffsState.saving"
+                :read-only="spiffsState.readOnly" :read-only-reason="spiffsState.readOnlyReason"
+                :dirty="spiffsState.dirty" :backup-done="spiffsState.backupDone || spiffsState.sessionBackupDone"
+                :error="spiffsState.error" :has-partition="hasSpiffsPartitionSelected"
+                :has-client="Boolean(spiffsState.client)" :usage="spiffsState.usage"
+                :upload-blocked="spiffsState.uploadBlocked" :upload-blocked-reason="spiffsState.uploadBlockedReason"
+                :is-file-viewable="isViewableSpiffsFile" :load-cancelled="spiffsState.loadCancelled"
                 :get-file-preview-info="resolveSpiffsViewInfo" @select-partition="handleSelectSpiffsPartition"
                 @refresh="handleRefreshSpiffs" @backup="handleSpiffsBackup" @restore="handleSpiffsRestore"
                 @download-file="handleSpiffsDownloadFile" @view-file="handleSpiffsView"
@@ -105,13 +105,11 @@
                 :status="littlefsState.status" :loading="littlefsState.loading" :busy="littlefsState.busy"
                 :saving="littlefsState.saving" :read-only="littlefsState.readOnly"
                 :read-only-reason="littlefsState.readOnlyReason" :dirty="littlefsState.dirty"
-                :backup-done="littlefsState.backupDone || littlefsState.sessionBackupDone"
-                :error="littlefsState.error" :has-partition="hasLittlefsPartitionSelected"
-                :has-client="Boolean(littlefsState.client)" :usage="littlefsState.usage"
-                :upload-blocked="littlefsState.uploadBlocked"
+                :backup-done="littlefsState.backupDone || littlefsState.sessionBackupDone" :error="littlefsState.error"
+                :has-partition="hasLittlefsPartitionSelected" :has-client="Boolean(littlefsState.client)"
+                :usage="littlefsState.usage" :upload-blocked="littlefsState.uploadBlocked"
                 :upload-blocked-reason="littlefsState.uploadBlockedReason" fs-label="LittleFS"
-                :load-cancelled="littlefsState.loadCancelled"
-                partition-title="LittleFS Partition"
+                :load-cancelled="littlefsState.loadCancelled" partition-title="LittleFS Partition"
                 empty-state-message="No LittleFS files found. Read the partition or upload to begin."
                 :is-file-viewable="isViewableSpiffsFile" :get-file-preview-info="resolveSpiffsViewInfo"
                 @select-partition="handleSelectLittlefsPartition" @refresh="handleRefreshLittlefs"
@@ -127,20 +125,18 @@
               <FilesystemManagerTab v-if="connected && fatfsAvailable" :partitions="fatfsPartitions"
                 :selected-partition-id="fatfsState.selectedId" :files="fatfsState.files" :status="fatfsState.status"
                 :loading="fatfsState.loading" :busy="fatfsState.busy" :saving="fatfsState.saving"
-                :read-only="fatfsState.readOnly" :read-only-reason="fatfsState.readOnlyReason"
-                :dirty="fatfsState.dirty" :backup-done="fatfsState.backupDone || fatfsState.sessionBackupDone"
-                :error="fatfsState.error" :has-partition="hasFatfsPartitionSelected"
-                :has-client="Boolean(fatfsState.client)" :usage="fatfsState.usage"
-                :upload-blocked="fatfsState.uploadBlocked" :upload-blocked-reason="fatfsState.uploadBlockedReason"
-                :load-cancelled="fatfsState.loadCancelled"
+                :read-only="fatfsState.readOnly" :read-only-reason="fatfsState.readOnlyReason" :dirty="fatfsState.dirty"
+                :backup-done="fatfsState.backupDone || fatfsState.sessionBackupDone" :error="fatfsState.error"
+                :has-partition="hasFatfsPartitionSelected" :has-client="Boolean(fatfsState.client)"
+                :usage="fatfsState.usage" :upload-blocked="fatfsState.uploadBlocked"
+                :upload-blocked-reason="fatfsState.uploadBlockedReason" :load-cancelled="fatfsState.loadCancelled"
                 fs-label="FATFS" partition-title="FATFS Partition"
                 empty-state-message="No FATFS files found. Read the partition or upload to begin."
                 :is-file-viewable="isViewableSpiffsFile" :get-file-preview-info="resolveSpiffsViewInfo"
-                @select-partition="handleSelectFatfsPartition" @refresh="handleRefreshFatfs"
-                @backup="handleFatfsBackup" @restore="handleFatfsRestore" @download-file="handleFatfsDownloadFile"
-                @view-file="handleFatfsView" @validate-upload="handleFatfsUploadSelection"
-                @upload-file="handleFatfsUpload" @delete-file="handleFatfsDelete" @format="handleFatfsFormat"
-                @save="handleFatfsSave" />
+                @select-partition="handleSelectFatfsPartition" @refresh="handleRefreshFatfs" @backup="handleFatfsBackup"
+                @restore="handleFatfsRestore" @download-file="handleFatfsDownloadFile" @view-file="handleFatfsView"
+                @validate-upload="handleFatfsUploadSelection" @upload-file="handleFatfsUpload"
+                @delete-file="handleFatfsDelete" @format="handleFatfsFormat" @save="handleFatfsSave" />
               <DisconnectedState v-else icon="mdi-alpha-f-circle-outline" :min-height="420"
                 subtitle="Connect to an ESP32 with a FATFS partition to use these tools." />
             </v-window-item>
@@ -155,10 +151,9 @@
             <v-window-item value="flash">
               <FlashFirmwareTab v-if="connected" v-model:flash-offset="flashOffset"
                 v-model:selected-preset="selectedPreset" v-model:erase-flash="eraseFlash"
-                :offset-presets="offsetPresets" :busy="busy" :can-flash="canFlash"
-                :flash-in-progress="flashInProgress" :flash-progress="flashProgress"
-                :flash-progress-dialog="flashProgressDialog" :maintenance-busy="maintenanceBusy"
-                :register-address="registerAddress" :register-value="registerValue"
+                :offset-presets="offsetPresets" :busy="busy" :can-flash="canFlash" :flash-in-progress="flashInProgress"
+                :flash-progress="flashProgress" :flash-progress-dialog="flashProgressDialog"
+                :maintenance-busy="maintenanceBusy" :register-address="registerAddress" :register-value="registerValue"
                 :register-read-result="registerReadResult" :register-status="registerStatus"
                 :register-status-type="registerStatusType" :register-options="registerOptions"
                 :register-reference="registerReference" :md5-offset="md5Offset" :md5-length="md5Length"
@@ -167,8 +162,8 @@
                 :flash-read-status="flashReadStatus" :flash-read-status-type="flashReadStatusType"
                 :partition-options="partitionDownloadOptions" :selected-partition="selectedPartitionDownload"
                 :integrity-partition="integrityPartition" :download-progress="downloadProgress"
-                @firmware-input="handleFirmwareInput" @flash="flashFirmware"
-                @apply-preset="applyOffsetPreset" @update:register-address="value => (registerAddress.value = value)"
+                @firmware-input="handleFirmwareInput" @flash="flashFirmware" @apply-preset="applyOffsetPreset"
+                @update:register-address="value => (registerAddress.value = value)"
                 @update:register-value="value => (registerValue.value = value)" @read-register="handleReadRegister"
                 @write-register="handleWriteRegister" @update:md5-offset="value => (md5Offset.value = value)"
                 @update:md5-length="value => (md5Length.value = value)" @compute-md5="handleComputeMd5"
@@ -186,8 +181,8 @@
             <v-window-item value="console">
               <SerialMonitorTab :monitor-text="monitorText" :monitor-active="monitorActive"
                 :monitor-error="monitorError" :can-start="canStartMonitor" :can-command="canIssueMonitorCommands"
-                @start-monitor="startMonitor" @stop-monitor="stopMonitor({ closeConnection: true })" @clear-monitor="clearMonitorOutput"
-                @reset-board="resetBoard" />
+                @start-monitor="startMonitor" @stop-monitor="stopMonitor({ closeConnection: true })"
+                @clear-monitor="clearMonitorOutput" @reset-board="resetBoard" />
             </v-window-item>
 
             <v-window-item value="log">
@@ -225,165 +220,165 @@
               </v-btn>
             </v-card-actions>
           </v-card>
-          </v-dialog>
+        </v-dialog>
 
-          <v-dialog :model-value="littlefsBackupDialog.visible" persistent max-width="420" class="progress-dialog">
-            <v-card>
-              <v-card-title class="text-h6">
-                <v-icon start color="primary">mdi-content-save</v-icon>
-                LittleFS Backup
-              </v-card-title>
-              <v-card-text class="progress-dialog__body">
-                <div class="progress-dialog__label">
-                  {{ littlefsBackupDialog.label || 'Preparing backup...' }}
-                </div>
-                <v-progress-linear :model-value="littlefsBackupDialog.value" height="24" color="primary" rounded>
-                  <strong>{{ Math.min(100, Math.max(0, Math.floor(littlefsBackupDialog.value))) }}%</strong>
-                </v-progress-linear>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer />
-                <v-btn variant="text" @click="cancelLittlefsBackup">
-                  Cancel
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+        <v-dialog :model-value="littlefsBackupDialog.visible" persistent max-width="420" class="progress-dialog">
+          <v-card>
+            <v-card-title class="text-h6">
+              <v-icon start color="primary">mdi-content-save</v-icon>
+              LittleFS Backup
+            </v-card-title>
+            <v-card-text class="progress-dialog__body">
+              <div class="progress-dialog__label">
+                {{ littlefsBackupDialog.label || 'Preparing backup...' }}
+              </div>
+              <v-progress-linear :model-value="littlefsBackupDialog.value" height="24" color="primary" rounded>
+                <strong>{{ Math.min(100, Math.max(0, Math.floor(littlefsBackupDialog.value))) }}%</strong>
+              </v-progress-linear>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn variant="text" @click="cancelLittlefsBackup">
+                Cancel
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
-          <v-dialog :model-value="littlefsLoadingDialog.visible" persistent max-width="420" class="progress-dialog">
-            <v-card>
-              <v-card-title class="text-h6">
-                <v-icon start color="primary">mdi-folder-sync</v-icon>
-                Loading LittleFS
-              </v-card-title>
-              <v-card-text class="progress-dialog__body">
-                <div class="progress-dialog__label">
-                  {{ littlefsLoadingDialog.label }}
-                </div>
-                <v-progress-linear :model-value="littlefsLoadingDialog.value" :indeterminate="littlefsLoadingDialog.value <= 0"
-                  height="24" color="primary" rounded />
-              </v-card-text>
-              <v-card-actions class="progress-dialog__actions">
-                <v-spacer />
-                <v-btn variant="text" :disabled="littlefsLoadCancelRequested" @click="cancelLittlefsLoad">
-                  Cancel
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+        <v-dialog :model-value="littlefsLoadingDialog.visible" persistent max-width="420" class="progress-dialog">
+          <v-card>
+            <v-card-title class="text-h6">
+              <v-icon start color="primary">mdi-folder-sync</v-icon>
+              Loading LittleFS
+            </v-card-title>
+            <v-card-text class="progress-dialog__body">
+              <div class="progress-dialog__label">
+                {{ littlefsLoadingDialog.label }}
+              </div>
+              <v-progress-linear :model-value="littlefsLoadingDialog.value"
+                :indeterminate="littlefsLoadingDialog.value <= 0" height="24" color="primary" rounded />
+            </v-card-text>
+            <v-card-actions class="progress-dialog__actions">
+              <v-spacer />
+              <v-btn variant="text" :disabled="littlefsLoadCancelRequested" @click="cancelLittlefsLoad">
+                Cancel
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
-          <v-dialog :model-value="littlefsSaveDialog.visible" persistent max-width="420" class="progress-dialog">
-            <v-card>
-              <v-card-title class="text-h6">
-                <v-icon start color="primary">mdi-floppy</v-icon>
-                Saving LittleFS
-              </v-card-title>
-              <v-card-text class="progress-dialog__body">
-                <div class="progress-dialog__label">
-                  {{ littlefsSaveDialog.label || 'Writing LittleFS image...' }}
-                </div>
-                <v-progress-linear :model-value="littlefsSaveDialog.value" height="24" color="primary" rounded>
-                  <strong>{{ Math.min(100, Math.max(0, Math.floor(littlefsSaveDialog.value))) }}%</strong>
-                </v-progress-linear>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
+        <v-dialog :model-value="littlefsSaveDialog.visible" persistent max-width="420" class="progress-dialog">
+          <v-card>
+            <v-card-title class="text-h6">
+              <v-icon start color="primary">mdi-floppy</v-icon>
+              Saving LittleFS
+            </v-card-title>
+            <v-card-text class="progress-dialog__body">
+              <div class="progress-dialog__label">
+                {{ littlefsSaveDialog.label || 'Writing LittleFS image...' }}
+              </div>
+              <v-progress-linear :model-value="littlefsSaveDialog.value" height="24" color="primary" rounded>
+                <strong>{{ Math.min(100, Math.max(0, Math.floor(littlefsSaveDialog.value))) }}%</strong>
+              </v-progress-linear>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
 
-          <v-dialog :model-value="littlefsRestoreDialog.visible" persistent max-width="420" class="progress-dialog">
-            <v-card>
-              <v-card-title class="text-h6">
-                <v-icon start color="primary">mdi-backup-restore</v-icon>
-                Restoring LittleFS
-              </v-card-title>
-              <v-card-text class="progress-dialog__body">
-                <div class="progress-dialog__label">
-                  {{ littlefsRestoreDialog.label || 'Writing LittleFS image...' }}
-                </div>
-                <v-progress-linear :model-value="littlefsRestoreDialog.value" height="24" color="primary" rounded>
-                  <strong>{{ Math.min(100, Math.max(0, Math.floor(littlefsRestoreDialog.value))) }}%</strong>
-                </v-progress-linear>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
+        <v-dialog :model-value="littlefsRestoreDialog.visible" persistent max-width="420" class="progress-dialog">
+          <v-card>
+            <v-card-title class="text-h6">
+              <v-icon start color="primary">mdi-backup-restore</v-icon>
+              Restoring LittleFS
+            </v-card-title>
+            <v-card-text class="progress-dialog__body">
+              <div class="progress-dialog__label">
+                {{ littlefsRestoreDialog.label || 'Writing LittleFS image...' }}
+              </div>
+              <v-progress-linear :model-value="littlefsRestoreDialog.value" height="24" color="primary" rounded>
+                <strong>{{ Math.min(100, Math.max(0, Math.floor(littlefsRestoreDialog.value))) }}%</strong>
+              </v-progress-linear>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
 
-          <v-dialog :model-value="fatfsBackupDialog.visible" persistent max-width="420" class="progress-dialog">
-            <v-card>
-              <v-card-title class="text-h6">
-                <v-icon start color="primary">mdi-content-save</v-icon>
-                FATFS Backup
-              </v-card-title>
-              <v-card-text class="progress-dialog__body">
-                <div class="progress-dialog__label">
-                  {{ fatfsBackupDialog.label || 'Preparing backup...' }}
-                </div>
-                <v-progress-linear :model-value="fatfsBackupDialog.value" height="24" color="primary" rounded>
-                  <strong>{{ Math.min(100, Math.max(0, Math.floor(fatfsBackupDialog.value))) }}%</strong>
-                </v-progress-linear>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer />
-                <v-btn variant="text" @click="cancelFatfsBackup">
-                  Cancel
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+        <v-dialog :model-value="fatfsBackupDialog.visible" persistent max-width="420" class="progress-dialog">
+          <v-card>
+            <v-card-title class="text-h6">
+              <v-icon start color="primary">mdi-content-save</v-icon>
+              FATFS Backup
+            </v-card-title>
+            <v-card-text class="progress-dialog__body">
+              <div class="progress-dialog__label">
+                {{ fatfsBackupDialog.label || 'Preparing backup...' }}
+              </div>
+              <v-progress-linear :model-value="fatfsBackupDialog.value" height="24" color="primary" rounded>
+                <strong>{{ Math.min(100, Math.max(0, Math.floor(fatfsBackupDialog.value))) }}%</strong>
+              </v-progress-linear>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn variant="text" @click="cancelFatfsBackup">
+                Cancel
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
-          <v-dialog :model-value="fatfsLoadingDialog.visible" persistent max-width="420" class="progress-dialog">
-            <v-card>
-              <v-card-title class="text-h6">
-                <v-icon start color="primary">mdi-folder-sync</v-icon>
-                Loading FATFS
-              </v-card-title>
-              <v-card-text class="progress-dialog__body">
-                <div class="progress-dialog__label">
-                  {{ fatfsLoadingDialog.label }}
-                </div>
-                <v-progress-linear :model-value="fatfsLoadingDialog.value" :indeterminate="fatfsLoadingDialog.value <= 0"
-                  height="24" color="primary" rounded />
-              </v-card-text>
-              <v-card-actions class="progress-dialog__actions">
-                <v-spacer />
-                <v-btn variant="text" :disabled="fatfsLoadCancelRequested" @click="cancelFatfsLoad">
-                  Cancel
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+        <v-dialog :model-value="fatfsLoadingDialog.visible" persistent max-width="420" class="progress-dialog">
+          <v-card>
+            <v-card-title class="text-h6">
+              <v-icon start color="primary">mdi-folder-sync</v-icon>
+              Loading FATFS
+            </v-card-title>
+            <v-card-text class="progress-dialog__body">
+              <div class="progress-dialog__label">
+                {{ fatfsLoadingDialog.label }}
+              </div>
+              <v-progress-linear :model-value="fatfsLoadingDialog.value" :indeterminate="fatfsLoadingDialog.value <= 0"
+                height="24" color="primary" rounded />
+            </v-card-text>
+            <v-card-actions class="progress-dialog__actions">
+              <v-spacer />
+              <v-btn variant="text" :disabled="fatfsLoadCancelRequested" @click="cancelFatfsLoad">
+                Cancel
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
-          <v-dialog :model-value="fatfsSaveDialog.visible" persistent max-width="420" class="progress-dialog">
-            <v-card>
-              <v-card-title class="text-h6">
-                <v-icon start color="primary">mdi-floppy</v-icon>
-                Saving FATFS
-              </v-card-title>
-              <v-card-text class="progress-dialog__body">
-                <div class="progress-dialog__label">
-                  {{ fatfsSaveDialog.label || 'Writing FATFS image...' }}
-                </div>
-                <v-progress-linear :model-value="fatfsSaveDialog.value" height="24" color="primary" rounded>
-                  <strong>{{ Math.min(100, Math.max(0, Math.floor(fatfsSaveDialog.value))) }}%</strong>
-                </v-progress-linear>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
+        <v-dialog :model-value="fatfsSaveDialog.visible" persistent max-width="420" class="progress-dialog">
+          <v-card>
+            <v-card-title class="text-h6">
+              <v-icon start color="primary">mdi-floppy</v-icon>
+              Saving FATFS
+            </v-card-title>
+            <v-card-text class="progress-dialog__body">
+              <div class="progress-dialog__label">
+                {{ fatfsSaveDialog.label || 'Writing FATFS image...' }}
+              </div>
+              <v-progress-linear :model-value="fatfsSaveDialog.value" height="24" color="primary" rounded>
+                <strong>{{ Math.min(100, Math.max(0, Math.floor(fatfsSaveDialog.value))) }}%</strong>
+              </v-progress-linear>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
 
-          <v-dialog :model-value="fatfsRestoreDialog.visible" persistent max-width="420" class="progress-dialog">
-            <v-card>
-              <v-card-title class="text-h6">
-                <v-icon start color="primary">mdi-backup-restore</v-icon>
-                Restoring FATFS
-              </v-card-title>
-              <v-card-text class="progress-dialog__body">
-                <div class="progress-dialog__label">
-                  {{ fatfsRestoreDialog.label || 'Writing FATFS image...' }}
-                </div>
-                <v-progress-linear :model-value="fatfsRestoreDialog.value" height="24" color="primary" rounded>
-                  <strong>{{ Math.min(100, Math.max(0, Math.floor(fatfsRestoreDialog.value))) }}%</strong>
-                </v-progress-linear>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
+        <v-dialog :model-value="fatfsRestoreDialog.visible" persistent max-width="420" class="progress-dialog">
+          <v-card>
+            <v-card-title class="text-h6">
+              <v-icon start color="primary">mdi-backup-restore</v-icon>
+              Restoring FATFS
+            </v-card-title>
+            <v-card-text class="progress-dialog__body">
+              <div class="progress-dialog__label">
+                {{ fatfsRestoreDialog.label || 'Writing FATFS image...' }}
+              </div>
+              <v-progress-linear :model-value="fatfsRestoreDialog.value" height="24" color="primary" rounded>
+                <strong>{{ Math.min(100, Math.max(0, Math.floor(fatfsRestoreDialog.value))) }}%</strong>
+              </v-progress-linear>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
 
         <v-dialog :model-value="spiffsBackupDialog.visible" persistent max-width="420" class="progress-dialog">
           <v-card>
@@ -408,27 +403,27 @@
           </v-card>
         </v-dialog>
 
-          <v-dialog :model-value="spiffsLoadingDialog.visible" persistent max-width="420" class="progress-dialog">
-            <v-card>
-              <v-card-title class="text-h6">
-                <v-icon start color="primary">mdi-folder-sync</v-icon>
-                Loading SPIFFS
-              </v-card-title>
-              <v-card-text class="progress-dialog__body">
-                <div class="progress-dialog__label">
-                  {{ spiffsLoadingDialog.label }}
-                </div>
-                <v-progress-linear :model-value="spiffsLoadingDialog.value" :indeterminate="spiffsLoadingDialog.value <= 0"
-                  height="24" color="primary" rounded />
-              </v-card-text>
-              <v-card-actions class="progress-dialog__actions">
-                <v-spacer />
-                <v-btn variant="text" :disabled="spiffsLoadCancelRequested" @click="cancelSpiffsLoad">
-                  Cancel
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+        <v-dialog :model-value="spiffsLoadingDialog.visible" persistent max-width="420" class="progress-dialog">
+          <v-card>
+            <v-card-title class="text-h6">
+              <v-icon start color="primary">mdi-folder-sync</v-icon>
+              Loading SPIFFS
+            </v-card-title>
+            <v-card-text class="progress-dialog__body">
+              <div class="progress-dialog__label">
+                {{ spiffsLoadingDialog.label }}
+              </div>
+              <v-progress-linear :model-value="spiffsLoadingDialog.value"
+                :indeterminate="spiffsLoadingDialog.value <= 0" height="24" color="primary" rounded />
+            </v-card-text>
+            <v-card-actions class="progress-dialog__actions">
+              <v-spacer />
+              <v-btn variant="text" :disabled="spiffsLoadCancelRequested" @click="cancelSpiffsLoad">
+                Cancel
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
         <v-dialog :model-value="spiffsSaveDialog.visible" persistent max-width="420" class="progress-dialog">
           <v-card>
@@ -506,19 +501,10 @@
                 {{ spiffsViewerDialog.error }}
               </v-alert>
               <template v-else>
-                <img
-                  v-if="spiffsViewerDialog.mode === 'image' && spiffsViewerDialog.imageUrl"
-                  :src="spiffsViewerDialog.imageUrl"
-                  class="spiffs-viewer__image"
-                  :alt="spiffsViewerDialog.name"
-                />
-                <audio
-                  v-else-if="spiffsViewerDialog.mode === 'audio' && spiffsViewerDialog.audioUrl"
-                  :src="spiffsViewerDialog.audioUrl"
-                  class="spiffs-viewer__audio"
-                  controls
-                  preload="auto"
-                >
+                <img v-if="spiffsViewerDialog.mode === 'image' && spiffsViewerDialog.imageUrl"
+                  :src="spiffsViewerDialog.imageUrl" class="spiffs-viewer__image" :alt="spiffsViewerDialog.name" />
+                <audio v-else-if="spiffsViewerDialog.mode === 'audio' && spiffsViewerDialog.audioUrl"
+                  :src="spiffsViewerDialog.audioUrl" class="spiffs-viewer__audio" controls preload="auto">
                   Your browser does not support audio playback.
                 </audio>
                 <pre v-else class="spiffs-viewer__content">{{ spiffsViewerDialog.content }}</pre>
@@ -3945,8 +3931,8 @@ async function analyzeAppPartitions(loaderInstance, partitions) {
       isActive: false,
       valid: false,
       segmentCount: null,
-    entryAddress: null,
-    entryAddressHex: null,
+      entryAddress: null,
+      entryAddressHex: null,
       projectName: null,
       version: null,
       built: null,
@@ -5076,6 +5062,10 @@ async function connect() {
         );
       } else if (typeof loader.value.getFlashSize === 'function') {
         flashSizeRaw = await loader.value.getFlashSize();
+        appendLog(
+          `Chip getFlashSize: ${flashSizeRaw === undefined ? 'undefined' : JSON.stringify(flashSizeRaw)}`,
+          '[debug]'
+        );
       }
     } catch (err) {
       appendLog(`Unable to retrieve flash size: ${err?.message || err}`, '[warn]');
@@ -5177,8 +5167,8 @@ async function connect() {
             `Flash size detection fallback: mapped octal capacity code 0x${capacityCodeRaw
               .toString(16)
               .toUpperCase()} -> 0x${mappedCapacityCode
-              .toString(16)
-              .toUpperCase()} (${formatBytes(fallbackFlashBytes)}).`,
+                .toString(16)
+                .toUpperCase()} (${formatBytes(fallbackFlashBytes)}).`,
             '[warn]'
           );
         }
@@ -6348,4 +6338,3 @@ onBeforeUnmount(() => {
   background: color-mix(in srgb, var(--v-theme-surface) 60%, transparent);
 }
 </style>
-
