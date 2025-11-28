@@ -74,7 +74,7 @@ export function createEsptoolClient({
   async function changeBaud(baud: number) {
     loader.baudrate = baud;
     await loader.changeBaud();
-    await transport.connect(baud, loader.serialOptions);
+    transport.baudrate = baud;
   }
 
   async function disconnect() {

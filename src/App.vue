@@ -564,10 +564,11 @@ import SerialMonitorTab from './components/SerialMonitorTab.vue';
 import DisconnectedState from './components/DisconnectedState.vue';
 import registerGuides from './data/register-guides.json';
 import { InMemorySpiffsClient } from './utils/spiffs/spiffsClient';
-import { createConnection, requestSerialPort } from './services/connectionService';
+import { requestSerialPort } from './services/connectionService';
 import { useFatfsManager, useLittlefsManager, useSpiffsManager } from './composables/useFilesystemManagers';
 import { useDialogs } from './composables/useDialogs';
 import { readPartitionTable } from './utils/partitions';
+import { createEsptoolClient } from './services/esptoolClient';
 import {
   SPIFFS_AUDIO_EXTENSIONS,
   SPIFFS_AUDIO_MIME_MAP,
@@ -4815,20 +4816,32 @@ async function connect() {
     const connectBaud = DEFAULT_ROM_BAUD;
     lastFlashBaud.value = desiredBaud;
     const portDetails = currentPort.value?.getInfo ? currentPort.value.getInfo() : null;
-    const connection = createConnection(currentPort.value, connectBaud, terminal, {
+    const esptool = createEsptoolClient({
+      port: currentPort.value,
+      terminal,
+      desiredBaud,
       debugSerial: DEBUG_SERIAL,
       debugLogging: false,
+      onStatus: msg => {
+        connectDialog.message = msg;
+        appendLog(msg, '[ESPConnect-Debug]');
+      },
     });
-    transport.value = connection.transport;
-    transport.value.tracing = DEBUG_SERIAL;
-    connectDialog.message = 'Handshaking with ROM bootloader...';
-    loader.value = connection.loader;
+    transport.value = esptool.transport;
+    loader.value = esptool.loader;
     currentBaud.value = connectBaud;
     transport.value.baudrate = connectBaud;
 
-    connectDialog.message = 'Reading chip information...';
-    const chipName = await loader.value.main();
-    const chip = loader.value.chip;
+    connectDialog.message = 'Handshaking with ROM bootloader...';
+    const { chipName, chip } = await esptool.connectAndHandshake();
+    currentBaud.value = desiredBaud || connectBaud;
+    transport.value.baudrate = currentBaud.value;
+    const previousSuspendState = suspendBaudWatcher;
+    suspendBaudWatcher = true;
+    selectedBaud.value = String(currentBaud.value);
+    queueMicrotask(() => {
+      suspendBaudWatcher = previousSuspendState;
+    });
     connected.value = true;
     appendLog(`Handshake complete with ${chipName}. Collecting device details...`, '[ESPConnect-Debug]');
     if (chip?.CHIP_NAME === 'ESP32-C6' && chip.SPI_REG_BASE === 0x60002000) {
@@ -4839,90 +4852,34 @@ async function connect() {
       );
     }
 
-    connectDialog.message = 'Selecting baud rate...';
-    if (desiredBaud !== connectBaud) {
-      try {
-        await setConnectionBaud(desiredBaud, { remember: true, log: true, updateDropdown: false });
-        const previousSuspendState = suspendBaudWatcher;
-        suspendBaudWatcher = true;
-        selectedBaud.value = String(desiredBaud);
-        queueMicrotask(() => {
-          suspendBaudWatcher = previousSuspendState;
-        });
-      } catch (error) {
-        appendLog(
-          `Fast baud negotiation failed (${error?.message || error}). Staying at ${connectBaud.toLocaleString()} bps.`,
-          '[ESPConnect-Warn]'
-        );
-        lastFlashBaud.value = connectBaud;
-        const previousSuspendState = suspendBaudWatcher;
-        suspendBaudWatcher = true;
-        selectedBaud.value = String(connectBaud);
-        queueMicrotask(() => {
-          suspendBaudWatcher = previousSuspendState;
-        });
-      }
-    } else {
-      lastFlashBaud.value = desiredBaud;
-    }
+    lastFlashBaud.value = currentBaud.value;
 
-    const callChip = async method => {
-      const fn = chip?.[method];
-      connectDialog.message = `Reading ${method}...`;
-      if (typeof fn === 'function') {
-        try {
-          const result = await fn.call(chip, loader.value);
-          appendLog(
-            `Chip ${method}: ${result === undefined ? 'undefined' : JSON.stringify(result)}`,
-            '[ESPConnect-Debug]'
-          );
-          return result;
-        } catch (err) {
-          appendLog(`Unable to retrieve ${method}: ${err?.message || err}`, '[ESPConnect-Warn]');
-          return undefined;
-        }
-      }
-      return undefined;
-    };
+    const metadata = await esptool.readChipMetadata();
 
-    const descriptionRaw = (await callChip('getChipDescription')) ?? chipName;
-    const featuresRaw = await callChip('getChipFeatures');
-    const crystalFreq = await callChip('getCrystalFreq');
-    const macAddress = await callChip('readMac');
+    const descriptionRaw = metadata.description ?? chipName;
+    const featuresRaw = metadata.features;
+    const crystalFreq = metadata.crystalFreq;
+    const macAddress = metadata.macAddress;
 
     connectDialog.message = `Reading Flash size...`;
-    let flashSizeRaw = undefined;
-    try {
-      if (typeof loader.value.detectFlashSize === 'function') {
-        flashSizeRaw = await loader.value.detectFlashSize();
-        appendLog(
-          `Chip detectFlashSize: ${flashSizeRaw === undefined ? 'undefined' : JSON.stringify(flashSizeRaw)}`,
-          '[ESPConnect-Debug]'
-        );
-      } else if (typeof loader.value.getFlashSize === 'function') {
-        flashSizeRaw = await loader.value.getFlashSize();
-        appendLog(
-          `Chip getFlashSize: ${flashSizeRaw === undefined ? 'undefined' : JSON.stringify(flashSizeRaw)}`,
-          '[ESPConnect-Debug]'
-        );
-      }
-    } catch (err) {
-      appendLog(`Unable to retrieve flash size: ${err?.message || err}`, '[ESPConnect-Warn]');
-      flashSizeRaw = undefined;
-    }
+    const flashSizeRaw = await esptool.detectFlashSize();
+    appendLog(
+      `Chip detectFlashSize: ${flashSizeRaw === undefined ? 'undefined' : JSON.stringify(flashSizeRaw)}`,
+      '[ESPConnect-Debug]'
+    );
 
-    const packageVersion = await callChip('getPkgVersion');
-    const chipRevision = await callChip('getChipRevision');
-    const majorVersion = await callChip('getMajorChipVersion');
-    const minorVersion = await callChip('getMinorChipVersion');
-    const flashVendor = await callChip('getFlashVendor');
-    const psramVendor = await callChip('getPsramVendor');
-    const flashCap = await callChip('getFlashCap');
-    const psramCap = await callChip('getPsramCap');
-    const blockVersionMajor = await callChip('getBlkVersionMajor');
-    const blockVersionMinor = await callChip('getBlkVersionMinor');
+    const packageVersion = metadata.pkgVersion;
+    const chipRevision = metadata.chipRevision;
+    const majorVersion = metadata.majorVersion;
+    const minorVersion = metadata.minorVersion;
+    const flashVendor = metadata.flashVendor;
+    const psramVendor = metadata.psramVendor;
+    const flashCap = metadata.flashCap;
+    const psramCap = metadata.psramCap;
+    const blockVersionMajor = metadata.blockVersionMajor;
+    const blockVersionMinor = metadata.blockVersionMinor;
 
-    const flashId = await loader.value.readFlashId().catch(() => undefined);
+    const flashId = await esptool.readFlashId();
     const manufacturerCode =
       typeof flashId === 'number' && Number.isFinite(flashId) ? flashId & 0xff : null;
     const memoryTypeCode =
